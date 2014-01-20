@@ -3,10 +3,10 @@ Pod::Spec.new do |s|
   s.version  = '1.0.0'
   s.license  = 'MIT'
   s.summary  = 'A library for creating dynamic forms.'
-  s.homepage = 'https://github.com/benzguo/BZGFormViewController'
+  s.homepage = 'https://github.com/damarte/BZGFormViewController'
   s.author   = { 'Ben Guo' => 'benzguo@gmail.com' }
   s.source   = {
-    :git => 'https://github.com/benzguo/BZGFormViewController.git',
+    :git => 'https://github.com/damarte/BZGFormViewController.git',
     :tag => '1.0.0'
   }
   s.dependency 'ReactiveCocoa', '~>2.1.8'

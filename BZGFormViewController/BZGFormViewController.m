@@ -6,6 +6,7 @@
 
 #import "BZGFormViewController.h"
 #import "BZGFormFieldCell.h"
+#import "BZGFormSelectCell.h"
 #import "BZGFormInfoCell.h"
 #import "Constants.h"
 

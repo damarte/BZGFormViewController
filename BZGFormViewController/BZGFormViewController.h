@@ -6,7 +6,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class BZGFormFieldCell, BZGFormInfoCell;
+@class BZGFormFieldCell, BZGFormSelectCell, BZGFormInfoCell;
 
 @interface BZGFormViewController : UITableViewController <UITextFieldDelegate>
 
