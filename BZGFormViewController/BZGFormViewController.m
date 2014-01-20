@@ -37,11 +37,18 @@
 
 - (BZGFormInfoCell *)infoCellBelowFormFieldCell:(BZGFormFieldCell *)fieldCell
 {
-    NSUInteger cellIndex = [self.formFieldCells indexOfObject:fieldCell];
-    if (cellIndex == NSNotFound) return nil;
-    if (cellIndex + 1 >= self.formFieldCells.count) return nil;
+    NSIndexPath *cellIndex = nil;
+    for(NSArray *section in self.formFieldCells){
+        cellIndex = [NSIndexPath indexPathForRow:[section indexOfObject:fieldCell] inSection:[self.formFieldCells indexOfObject:section]];
+        if([section indexOfObject:fieldCell] != NSNotFound){
+            break;
+        }
+    }
+    
+    if (cellIndex.row == NSNotFound) return nil;
+    if (cellIndex.row + 1 >= [(NSArray *)self.formFieldCells[cellIndex.section] count]) return nil;
 
-    UITableViewCell *cellBelow = self.formFieldCells[cellIndex + 1];
+    UITableViewCell *cellBelow = self.formFieldCells[cellIndex.section][cellIndex.row + 1];
     if ([cellBelow isKindOfClass:[BZGFormInfoCell class]]) {
         return (BZGFormInfoCell *)cellBelow;
     }
@@ -51,35 +58,49 @@
 
 - (void)showInfoCellBelowFormFieldCell:(BZGFormFieldCell *)fieldCell
 {
-    NSUInteger cellIndex = [self.formFieldCells indexOfObject:fieldCell];
-    if (cellIndex == NSNotFound) return;
+    NSIndexPath *cellIndex = nil;
+    for(NSArray *section in self.formFieldCells){
+        cellIndex = [NSIndexPath indexPathForRow:[section indexOfObject:fieldCell] inSection:[self.formFieldCells indexOfObject:section]];
+        if([section indexOfObject:fieldCell] != NSNotFound){
+            break;
+        }
+    }
     
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:cellIndex+1
-                                                inSection:self.formSection];
+    if (cellIndex.row == NSNotFound) return;
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:cellIndex.row+1
+                                                inSection:cellIndex.section];
 
     // if an info cell is already showing, do nothing
     BZGFormInfoCell *infoCell = [self infoCellBelowFormFieldCell:fieldCell];
     if (infoCell) return;
 
     // otherwise, add the field cell's info cell to the table view
-    [self.formFieldCells insertObject:fieldCell.infoCell atIndex:cellIndex+1];
+    [self.formFieldCells[cellIndex.section] insertObject:fieldCell.infoCell atIndex:cellIndex.row+1];
     [self.tableView insertRowsAtIndexPaths:@[indexPath]
                           withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (void)removeInfoCellBelowFormFieldCell:(BZGFormFieldCell *)fieldCell
 {
-    NSUInteger cellIndex = [self.formFieldCells indexOfObject:fieldCell];
-    if (cellIndex == NSNotFound) return;
+    NSIndexPath *cellIndex = nil;
+    for(NSArray *section in self.formFieldCells){
+        cellIndex = [NSIndexPath indexPathForRow:[section indexOfObject:fieldCell] inSection:[self.formFieldCells indexOfObject:section]];
+        if([section indexOfObject:fieldCell] != NSNotFound){
+            break;
+        }
+    }
+    
+    if (cellIndex.row == NSNotFound) return;
 
     // if no info cell is showing, do nothing
     BZGFormInfoCell *infoCell = [self infoCellBelowFormFieldCell:fieldCell];
     if (!infoCell) return;
 
     // otherwise, remove it
-    [self.formFieldCells removeObjectAtIndex:cellIndex+1];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:cellIndex+1
-                                                inSection:self.formSection];
+    [self.formFieldCells[cellIndex.section] removeObjectAtIndex:cellIndex.row+1];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:cellIndex.row+1
+                                                inSection:cellIndex.section];
     [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
@@ -96,10 +117,12 @@
 
 - (BZGFormFieldCell *)firstInvalidFormFieldCell
 {
-    for (UITableViewCell *cell in self.formFieldCells) {
-        if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
-            if (((BZGFormFieldCell *)cell).validationState == BZGValidationStateInvalid) {
-                return (BZGFormFieldCell *)cell;
+    for(NSArray *section in self.formFieldCells) {
+        for (UITableViewCell *cell in section) {
+            if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
+                if (((BZGFormFieldCell *)cell).validationState == BZGValidationStateInvalid) {
+                    return (BZGFormFieldCell *)cell;
+                }
             }
         }
     }
@@ -122,7 +145,7 @@
 
 #pragma mark - Table view data source
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     if (self.formFieldCells) {
         return self.formFieldCells.count;
@@ -130,10 +153,18 @@
     return 0;
 }
 
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (self.formFieldCells) {
+        return [(NSArray *)[self.formFieldCells objectAtIndex:section] count];
+    }
+    return 0;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.formFieldCells) {
-        return [self.formFieldCells objectAtIndex:indexPath.row];
+        return [self.formFieldCells[indexPath.section] objectAtIndex:indexPath.row];
     }
     return nil;
 }
@@ -141,10 +172,18 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (self.formFieldCells) {
-        UITableViewCell *cell = [self.formFieldCells objectAtIndex:indexPath.row];
+        UITableViewCell *cell = [self.formFieldCells[indexPath.section] objectAtIndex:indexPath.row];
         return cell.frame.size.height;
     }
     return 0;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    if (self.formSectionsTitle && self.formSectionsTitle.count > section) {
+        return [self.formSectionsTitle objectAtIndex:section];
+    }
+    return @"";
 }
 
 #pragma mark - UITextFieldDelegate

@@ -87,7 +87,7 @@
     }
     CGRect labelFrame = CGRectMake(labelX,
                                    0,
-                                   self.textField.frame.origin.x - labelX,
+                                   self.textField.frame.origin.x - labelX - 5,
                                    self.bounds.size.height);
     self.label = [[UILabel alloc] initWithFrame:labelFrame];
     self.label.font = BZG_FORMFIELD_LABEL_FONT;

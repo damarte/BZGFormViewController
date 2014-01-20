@@ -13,8 +13,8 @@
 /// An array of BZGFormFieldCells used as the table view's data source in the specified section.
 @property (nonatomic, strong) NSMutableArray *formFieldCells;
 
-/// The table view section where the form should be displayed.
-@property (nonatomic, assign) NSUInteger formSection;
+/// An array of NSString used as the table view's data source in the specified section.
+@property (nonatomic, strong) NSMutableArray *formSectionsTitle;
 
 /**
  * Updates the display state of the info cell below a form field cell.
