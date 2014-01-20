@@ -13,6 +13,14 @@
 #import "BZGFormInfoCell.h"
 #import "Constants.h"
 
+@interface BZGFormSelectCell () {
+}
+
+@property (nonatomic, strong) BZGFormOptionsViewController *optionPicker;
+@property (nonatomic, strong) UIPopoverController *optionPickerPopover;
+
+@end
+
 @implementation BZGFormSelectCell
 
 - (id)init
@@ -41,8 +49,10 @@
     self.detailTextLabel.hidden = YES;
     self.imageView.hidden = YES;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.validationState = BZGValidationSelectStateNone;
+    self.validationState = BZGValidationStateNone;
     self.shouldShowInfoCell = NO;
+    self.options = [NSArray array];
+    self.selected = nil;
 }
 
 - (void)configureInfoCell
@@ -63,10 +73,35 @@
                                        self.bounds.size.width - textFieldX,
                                        self.bounds.size.height);
     self.button = [[UIButton alloc] initWithFrame:buttonFrame];
+    self.button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    self.button.tintColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
+    [self.button setTitleColor:BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR forState:UIControlStateNormal];
     self.button.titleLabel.textColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
     self.button.titleLabel.font = BZG_FORMFIELD_TEXTFIELD_FONT;
     self.button.backgroundColor = [UIColor clearColor];
+    [self.button addTarget:self action:@selector(openOptions:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.button];
+}
+
+- (void) openOptions:(id) sender
+{
+    if (_optionPicker == nil) {
+        //Create the ColorPickerViewController.
+        _optionPicker = [[BZGFormOptionsViewController alloc] initWithOptions:self.options];
+        
+        //Set this VC as the delegate.
+        _optionPicker.delegate = self;
+    }
+    
+    if (_optionPickerPopover == nil) {
+        //The color picker popover is not showing. Show it.
+        _optionPickerPopover = [[UIPopoverController alloc] initWithContentViewController:_optionPicker];
+        [_optionPickerPopover presentPopoverFromRect:self.button.bounds inView:self.superview permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    } else {
+        //The color picker popover is showing. Hide it.
+        [_optionPickerPopover dismissPopoverAnimated:YES];
+        _optionPickerPopover = nil;
+    }
 }
 
 - (void)configureLabel
@@ -88,33 +123,17 @@
 
 - (void)configureBindings
 {
-    @weakify(self);
-    
     RAC(self.button, titleLabel.textColor) =
     [RACObserve(self, validationState) map:^UIColor *(NSNumber *validationState) {
-        @strongify(self);
-        /*if (self.textField.editing || self.textField.isFirstResponder) {
-            return BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
-        }*/
         switch (validationState.integerValue) {
-            case BZGValidationSelectStateInvalid:
+            case BZGValidationStateInvalid:
                 return BZG_FORMFIELD_TEXTFIELD_INVALID_COLOR;
                 break;
-            case BZGValidationSelectStateValid:
-            case BZGValidationSelectStateNone:
+            case BZGValidationStateValid:
+            case BZGValidationStateNone:
             default:
                 return BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
                 break;
-        }
-    }];
-    
-    RAC(self, accessoryType) =
-    [RACObserve(self, validationState) map:^NSNumber *(NSNumber *validationState) {
-        @strongify(self);
-        if (validationState.integerValue == BZGValidationSelectStateValid) {
-            return @(UITableViewCellAccessoryCheckmark);
-        } else {
-            return @(UITableViewCellAccessoryNone);
         }
     }];
 }
@@ -130,7 +149,17 @@
 }
 
 
-#pragma mark - UITextField notification selectors
+#pragma mark - OptionPickerDelegate method
+-(void)selectedOption:(NSDictionary *)newOption
+{
+    [self.button setTitle:[newOption objectForKey:@"name"] forState:UIControlStateNormal];
+    
+    //Dismiss the popover if it's showing.
+    if (_optionPickerPopover) {
+        [_optionPickerPopover dismissPopoverAnimated:YES];
+        _optionPickerPopover = nil;
+    }
+}
 
 
 @end
