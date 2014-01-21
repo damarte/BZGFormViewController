@@ -31,6 +31,33 @@
         [self configureInfoCell];
         [self configureButton];
         [self configureLabel];
+        
+    }
+    return self;
+}
+
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSNumber *)selected
+{
+    self = [self init];
+    if (self) {
+        self.label.text = aName;
+        self.placeholder = aPlaceHolder;
+        [self.button setTitle:self.placeholder forState:UIControlStateNormal];
+        self.required = required;
+        if(selected && [selected integerValue] < options.count){
+            self.optionSelected = [self.options objectAtIndex:[selected integerValue]];
+        }
+        
+        if(required){
+            self.options = options;
+        }
+        else{
+            self.validationState = BZGValidationStateValid;
+            NSMutableArray *values = [NSMutableArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:NSLocalizedString(@"Ninguno", nil), @"name", @0, @"id", nil]];
+            [values addObjectsFromArray:options];
+            self.options = values;
+        }
+        
         [self configureBindings];
     }
     return self;
@@ -44,20 +71,9 @@
 
 - (void)setDefaults
 {
-    self.backgroundColor = BZG_FORMFIELD_BACKGROUND_COLOR;
-    self.textLabel.hidden = YES;
-    self.detailTextLabel.hidden = YES;
-    self.imageView.hidden = YES;
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.validationState = BZGValidationStateNone;
-    self.shouldShowInfoCell = NO;
+    [super setDefaults];
     self.options = [NSArray array];
-    self.selected = nil;
-}
-
-- (void)configureInfoCell
-{
-    self.infoCell = [[BZGFormInfoCell alloc] init];
+    self.optionSelected = nil;
 }
 
 - (void)configureButton
@@ -86,39 +102,16 @@
 - (void) openOptions:(id) sender
 {
     if (_optionPicker == nil) {
-        //Create the ColorPickerViewController.
         _optionPicker = [[BZGFormOptionsViewController alloc] initWithOptions:self.options];
-        
-        //Set this VC as the delegate.
         _optionPicker.delegate = self;
     }
     
     if (_optionPickerPopover == nil) {
-        //The color picker popover is not showing. Show it.
         _optionPickerPopover = [[UIPopoverController alloc] initWithContentViewController:_optionPicker];
-        [_optionPickerPopover presentPopoverFromRect:self.button.bounds inView:self.superview permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
-    } else {
-        //The color picker popover is showing. Hide it.
-        [_optionPickerPopover dismissPopoverAnimated:YES];
-        _optionPickerPopover = nil;
+        _optionPickerPopover.delegate = self;
     }
-}
-
-- (void)configureLabel
-{
-    CGFloat labelX = 10;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        labelX = 15;
-    }
-    CGRect labelFrame = CGRectMake(labelX,
-                                   0,
-                                   self.button.frame.origin.x - labelX - 5,
-                                   self.bounds.size.height);
-    self.label = [[UILabel alloc] initWithFrame:labelFrame];
-    self.label.font = BZG_FORMFIELD_LABEL_FONT;
-    self.label.textColor = BZG_FORMFIELD_LABEL_COLOR;
-    self.label.backgroundColor = [UIColor clearColor];
-    [self addSubview:self.label];
+    
+    [_optionPickerPopover presentPopoverFromRect:self.button.bounds inView:self permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
 }
 
 - (void)configureBindings
@@ -136,8 +129,16 @@
                 break;
         }
     }];
+    
+    RAC(self, accessoryType) =
+    [RACObserve(self, validationState) map:^NSNumber *(NSNumber *validationState) {
+        if (validationState.integerValue == BZGValidationStateValid) {
+            return @(UITableViewCellAccessoryCheckmark);
+        } else {
+            return @(UITableViewCellAccessoryNone);
+        }
+    }];
 }
-
 
 + (BZGFormSelectCell *)parentCellForButton:(UIButton *)button
 {
@@ -148,17 +149,67 @@
     return (BZGFormSelectCell *)view;
 }
 
+- (NSString *)value
+{
+    return [self.optionSelected objectForKey:@"id"];
+}
 
-#pragma mark - OptionPickerDelegate method
+- (void)redraw
+{
+    //Button
+    CGFloat buttonX = self.bounds.size.width * 0.35;
+    CGFloat buttonY = 0;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        buttonY = 12;
+    }
+    self.button.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    CGRect buttonFrame = CGRectMake(buttonX,
+                                    buttonY,
+                                    self.bounds.size.width - buttonX,
+                                    self.bounds.size.height);
+    self.button.frame = buttonFrame;
+    
+    //Label
+    CGFloat labelX = 10;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        labelX = 15;
+    }
+    CGRect labelFrame = CGRectMake(labelX,
+                                   0,
+                                   self.button.frame.origin.x - labelX - 5,
+                                   self.bounds.size.height);
+    self.label.frame = labelFrame;
+}
+
+
+#pragma mark - OptionPickerDelegate
 -(void)selectedOption:(NSDictionary *)newOption
 {
-    [self.button setTitle:[newOption objectForKey:@"name"] forState:UIControlStateNormal];
+    if(newOption){
+        [self.button setTitle:[newOption objectForKey:@"name"] forState:UIControlStateNormal];
+    }
+    else{
+        [self.button setTitle:self.placeholder forState:UIControlStateNormal];
+    }
+        
+    self.optionSelected = newOption;
+    
+    [self.delegate selectedOption:newOption withCell:self];
+    
+    self.validationState = self.validationState;
     
     //Dismiss the popover if it's showing.
     if (_optionPickerPopover) {
         [_optionPickerPopover dismissPopoverAnimated:YES];
         _optionPickerPopover = nil;
     }
+}
+
+#pragma mark - UIPopoverControllerDelegate
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController{
+    [self.delegate selectedOption:self.optionPicker.selected withCell:self];
+    
+    self.validationState = self.validationState;
 }
 
 

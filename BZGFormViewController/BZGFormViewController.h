@@ -5,10 +5,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BZGFormSelectCell.h"
 
 @class BZGFormFieldCell, BZGFormSelectCell, BZGFormInfoCell;
 
-@interface BZGFormViewController : UITableViewController <UITextFieldDelegate>
+@interface BZGFormViewController : UITableViewController <UITextFieldDelegate, SelectCellDelegate>
 
 /// An array of BZGFormFieldCells used as the table view's data source in the specified section.
 @property (nonatomic, strong) NSMutableArray *formFieldCells;

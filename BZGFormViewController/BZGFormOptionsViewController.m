@@ -19,6 +19,7 @@
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
         self.options = options;
+        self.selected = nil;
     }
     
     //Make row selections persist.
@@ -55,8 +56,8 @@
 {
     NSDictionary *option = [self.options objectAtIndex:indexPath.row];
     
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    static NSString *CellIdentifier = @"OptionCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
@@ -71,6 +72,12 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSDictionary *selected = [self.options objectAtIndex:indexPath.row];
+    
+    if([[selected objectForKey:@"id"] integerValue] == 0){
+        selected = nil;
+    }
+    
+    self.selected = selected;
     
     //Notify the delegate if it exists.
     if (_delegate != nil) {

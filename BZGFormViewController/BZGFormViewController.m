@@ -144,7 +144,12 @@
     return nil;
 }
 
-#pragma mark - Table view data source
+- (void)submit
+{
+    NSLog(@"Enviar");
+}
+
+#pragma mark - TableView DataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -185,6 +190,36 @@
         return [self.formSectionsTitle objectAtIndex:section];
     }
     return @"";
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if([cell isKindOfClass:[BZGFormFieldCell class]]){
+        [((BZGFormFieldCell *)cell) redraw];
+    }
+}
+
+#pragma mark - TableView Delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    BOOL valid = YES;
+    if(indexPath.section == self.formFieldCells.count){
+        for(NSArray *section in self.formFieldCells) {
+            for (UITableViewCell *cell in section) {
+                if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
+                    if (((BZGFormFieldCell *)cell).validationState != BZGValidationStateValid) {
+                        valid = NO;
+                    }
+                }
+            }
+        }
+    }
+    
+    if(valid){
+        [self submit];
+    }
 }
 
 #pragma mark - UITextFieldDelegate
@@ -256,6 +291,17 @@
 
     [self updateInfoCellBelowFormFieldCell:cell];
     return shouldReturn;
+}
+
+#pragma mark - SelectCellDelegate
+
+-(void)selectedOption:(NSDictionary *)newOption withCell:(BZGFormSelectCell *)cell
+{
+    if (cell.shouldChangeBlock) {
+        cell.shouldChangeBlock(cell, newOption);
+    }
+    
+    [self updateInfoCellBelowFormFieldCell:cell];
 }
 
 

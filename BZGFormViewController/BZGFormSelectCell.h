@@ -11,27 +11,22 @@
 #import "BZGFormFieldCell.h"
 #import "BZGFormOptionsViewController.h"
 
+@class BZGFormSelectCell;
 
-@interface BZGFormSelectCell : BZGFormFieldCell <OptionPickerDelegate>
+@protocol SelectCellDelegate <NSObject>
+@required
+-(void)selectedOption:(NSDictionary *)newOption withCell:(BZGFormSelectCell *)cell;
+@end
 
-typedef BOOL (^boolSelectEventBlock)(BZGFormSelectCell *cell, NSDictionary *value);
+@interface BZGFormSelectCell : BZGFormFieldCell <OptionPickerDelegate, UIPopoverControllerDelegate>
 
-@property (strong, nonatomic) UILabel *label;
+typedef void (^boolSelectEventBlock)(BZGFormSelectCell *cell, NSDictionary *value);
+
+@property (nonatomic, strong) id<SelectCellDelegate> delegate;
+@property (strong, nonatomic) NSString *placeholder;
 @property (strong, nonatomic) UIButton *button;
-
 @property (strong, nonatomic) NSArray *options;
-@property (strong, nonatomic) NSDictionary *selected;
-
-/// The current validation state. Default is BZGValidationStateNone.
-@property (assign, nonatomic) BZGValidationState validationState;
-
-/// The info cell displayed below this cell when shouldShowInfoCell is true.
-@property (strong, nonatomic) BZGFormInfoCell *infoCell;
-
-/// A value indicating whether or not the cell's info cell should be shown.
-@property (assign, nonatomic) BOOL shouldShowInfoCell;
-
-
+@property (strong, nonatomic) NSDictionary *optionSelected;
 
 /**
  * The block called before the text field's text changes.
@@ -45,5 +40,8 @@ typedef BOOL (^boolSelectEventBlock)(BZGFormSelectCell *cell, NSDictionary *valu
  * @param button A UIButton instance that may or may not belong to this BZGFormSelectCell instance.
  */
 + (BZGFormSelectCell *)parentCellForButton:(UIButton *)button;
+
+//General constructor
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSNumber *)selected;
 
 @end

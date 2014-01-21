@@ -22,8 +22,25 @@
         [self configureActivityIndicatorView];
         [self configureTextField];
         [self configureLabel];
-        [self configureBindings];
+    }
+    return self;
+}
 
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withKeyboard:(UIKeyboardType)keyboard
+{
+    self = [self init];
+    if (self) {
+        self.label.text = aName;
+        self.textField.placeholder = aPlaceHolder;
+        self.required = required;
+        self.textField.keyboardType = keyboard;
+        
+        if(!self.required){
+            self.validationState = BZGValidationStateValid;
+        }
+        
+        [self configureBindings];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(textFieldTextDidEndEditing:)
                                                      name:UITextFieldTextDidEndEditingNotification
@@ -167,6 +184,37 @@
     return (BZGFormFieldCell *)view;
 }
 
+- (NSString *)value
+{
+    return self.textField.text;
+}
+
+- (void)redraw
+{
+    //TextField
+    CGFloat textFieldX = self.bounds.size.width * 0.35;
+    CGFloat textFieldY = 0;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        textFieldY = 12;
+    }
+    self.textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    CGRect textFieldFrame = CGRectMake(textFieldX,
+                                       textFieldY,
+                                       self.bounds.size.width - textFieldX - self.activityIndicatorView.frame.size.width,
+                                       self.bounds.size.height);
+    self.textField.frame = textFieldFrame;
+    
+    //Label
+    CGFloat labelX = 10;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        labelX = 15;
+    }
+    CGRect labelFrame = CGRectMake(labelX,
+                                   0,
+                                   self.textField.frame.origin.x - labelX - 5,
+                                   self.bounds.size.height);
+    self.label.frame = labelFrame;
+}
 
 #pragma mark - UITextField notification selectors
 // I'm using these notifications to flush the validation state signal.

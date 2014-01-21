@@ -22,6 +22,7 @@ typedef BOOL (^boolEditingEventBlock)(BZGFormFieldCell *cell, NSString *text);
 @property (strong, nonatomic) UILabel *label;
 @property (strong, nonatomic) UITextField *textField;
 @property (strong, nonatomic) UIActivityIndicatorView *activityIndicatorView;
+@property (assign, nonatomic) BOOL required;
 
 /// The current validation state. Default is BZGValidationStateNone.
 @property (assign, nonatomic) BZGValidationState validationState;
@@ -53,5 +54,17 @@ typedef BOOL (^boolEditingEventBlock)(BZGFormFieldCell *cell, NSString *text);
  * @param textField A UITextField instance that may or may not belong to this BZGFormFieldCell instance.
  */
 + (BZGFormFieldCell *)parentCellForTextField:(UITextField *)textField;
+
+
+//General constructor
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withKeyboard:(UIKeyboardType)keyboard;
+
+- (void)setDefaults;
+- (void)configureInfoCell;
+- (void)configureLabel;
+- (void)configureBindings;
+
+- (NSString *)value;
+- (void)redraw;
 
 @end
