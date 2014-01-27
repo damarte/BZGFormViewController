@@ -7,6 +7,7 @@
 #import "BZGFormViewController.h"
 #import "BZGFormFieldCell.h"
 #import "BZGFormSelectCell.h"
+#import "BZGFormTextCell.h"
 #import "BZGFormInfoCell.h"
 #import "Constants.h"
 
@@ -204,22 +205,25 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    BOOL valid = YES;
-    if(indexPath.section == self.formFieldCells.count){
-        for(NSArray *section in self.formFieldCells) {
-            for (UITableViewCell *cell in section) {
-                if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
-                    if (((BZGFormFieldCell *)cell).validationState != BZGValidationStateValid) {
-                        valid = NO;
+    if(indexPath.section == self.formFieldCells.count && indexPath.row == 0){
+        BOOL valid = YES;
+        if(indexPath.section == self.formFieldCells.count){
+            for(NSArray *section in self.formFieldCells) {
+                for (UITableViewCell *cell in section) {
+                    if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
+                        if (((BZGFormFieldCell *)cell).validationState != BZGValidationStateValid) {
+                            valid = NO;
+                        }
                     }
                 }
             }
         }
+        
+        if(valid){
+            [self submit];
+        }
     }
     
-    if(valid){
-        [self submit];
-    }
 }
 
 #pragma mark - UITextFieldDelegate

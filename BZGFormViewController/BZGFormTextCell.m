@@ -29,12 +29,11 @@
     return self;
 }
 
-- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withKeyboard:(UIKeyboardType)keyboard
+- (id)initWithName:(NSString *)aName isRequired:(BOOL)required withKeyboard:(UIKeyboardType)keyboard
 {
     self = [self init];
     if (self) {
         self.label.text = aName;
-        self.textField.placeholder = aPlaceHolder;
         self.required = required;
         self.textField.keyboardType = keyboard;
         
@@ -56,17 +55,31 @@
     return self;
 }
 
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super init];
+    return self;
+}
+
 - (void)configureTextView
 {
-    CGFloat textFieldX = self.bounds.size.width * 0.35;
-    CGFloat textFieldY = 0;
+    //Cell
+    CGRect cellFrame = CGRectMake(0,
+                                  0,
+                                  self.bounds.size.width,
+                                  88);
+    self.frame = cellFrame;
+    
+    CGFloat textFieldX = 10;
+    CGFloat textFieldY = 25;
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        textFieldY = 12;
+        textFieldX = 15;
+        textFieldY = 27;
     }
     CGRect textFieldFrame = CGRectMake(textFieldX,
                                        textFieldY,
                                        self.bounds.size.width - textFieldX - self.activityIndicatorView.frame.size.width,
-                                       self.bounds.size.height);
+                                       self.bounds.size.height-textFieldY);
     self.textView = [[UITextView alloc] initWithFrame:textFieldFrame];
     self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
     self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
@@ -76,6 +89,23 @@
     [self addSubview:self.textView];
 }
 
+- (void)configureLabel
+{
+    CGFloat labelX = 10;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        labelX = 15;
+    }
+    CGRect labelFrame = CGRectMake(labelX,
+                                   0,
+                                   self.bounds.size.width-2*labelX-self.activityIndicatorView.frame.size.width,
+                                   20);
+    self.label = [[UILabel alloc] initWithFrame:labelFrame];
+    self.label.font = BZG_FORMFIELD_LABEL_FONT;
+    self.label.textColor = BZG_FORMFIELD_LABEL_COLOR;
+    self.label.backgroundColor = [UIColor clearColor];
+    [self addSubview:self.label];
+}
+
 - (void)configureBindings
 {
     @weakify(self);
@@ -83,7 +113,7 @@
     RAC(self.textView, textColor) =
     [RACObserve(self, validationState) map:^UIColor *(NSNumber *validationState) {
         @strongify(self);
-        if (self.textView.editing || self.textField.isFirstResponder) {
+        if (self.textView.isFirstResponder) {
             return BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
         }
         switch (validationState.integerValue) {
@@ -113,14 +143,83 @@
     
     RAC(self, accessoryType) =
     [RACObserve(self, validationState) map:^NSNumber *(NSNumber *validationState) {
-        @strongify(self);
-        if (validationState.integerValue == BZGValidationStateValid
-            && !self.textField.editing) {
+        if (validationState.integerValue == BZGValidationStateValid) {
             return @(UITableViewCellAccessoryCheckmark);
         } else {
             return @(UITableViewCellAccessoryNone);
         }
     }];
+}
+
++ (BZGFormTextCell *)parentCellForTextView:(UITextView *)textView
+{
+    UIView *view = textView;
+    while ((view = view.superview)) {
+        if ([view isKindOfClass:[BZGFormTextCell class]]) break;
+    }
+    return (BZGFormTextCell *)view;
+}
+
+- (NSString *)value
+{
+    return self.textView.text;
+}
+
+- (void)redraw
+{
+    //TextView
+    CGFloat textFieldX = 10;
+    CGFloat textFieldY = 25;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        textFieldX = 15;
+        textFieldY = 27;
+    }
+
+    CGRect textFieldFrame = CGRectMake(textFieldX,
+                                       textFieldY,
+                                       self.bounds.size.width - 2*textFieldX - self.activityIndicatorView.frame.size.width,
+                                       self.bounds.size.height-textFieldY);
+    self.textView.frame = textFieldFrame;
+    
+    //Label
+    CGFloat labelX = 10;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+        labelX = 15;
+    }
+    CGRect labelFrame = CGRectMake(labelX,
+                                   0,
+                                   self.bounds.size.width-2*labelX-self.activityIndicatorView.frame.size.width,
+                                   20);
+    self.label.frame = labelFrame;
+}
+
+#pragma mark - UITextField notification selectors
+// I'm using these notifications to flush the validation state signal.
+// It works, but seems hacky. Is there a better way?
+
+- (void)textFieldTextDidChange:(NSNotification *)notification
+{
+    UITextView *textView = (UITextView *)notification.object;
+    if ([textView isEqual:self.textView]) {
+        self.validationState = self.validationState;
+        
+        // Secure text fields clear on begin editing on iOS6+.
+        // If it seems like the text field has been cleared,
+        // invoke the text change delegate method again to ensure proper validation.
+        if (textView.secureTextEntry && textView.text.length <= 1) {
+            [self.textField.delegate textField:self.textField
+                 shouldChangeCharactersInRange:NSMakeRange(0, textView.text.length)
+                             replacementString:textView.text];
+        }
+    }
+}
+
+- (void)textFieldTextDidEndEditing:(NSNotification *)notification
+{
+    UITextView *textView = (UITextView *)notification.object;
+    if ([textView isEqual:self.textField]) {
+        self.validationState = self.validationState;
+    }
 }
 
 

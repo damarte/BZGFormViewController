@@ -14,4 +14,6 @@
 
 @property (strong, nonatomic) UITextView *textView;
 
+- (id)initWithName:(NSString *)aName isRequired:(BOOL)required withKeyboard:(UIKeyboardType)keyboard;
+
 @end

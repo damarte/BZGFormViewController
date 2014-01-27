@@ -14,7 +14,7 @@ typedef NS_ENUM(NSInteger, BZGValidationState) {
     BZGValidationStateNone
 };
 
-@interface BZGFormFieldCell : UITableViewCell <UITextFieldDelegate>
+@interface BZGFormFieldCell : UITableViewCell <UITextFieldDelegate, UITextViewDelegate>
 
 typedef void (^voidEditingEventBlock)(BZGFormFieldCell *cell, NSString *text);
 typedef BOOL (^boolEditingEventBlock)(BZGFormFieldCell *cell, NSString *text);
