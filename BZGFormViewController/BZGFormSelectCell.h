@@ -42,6 +42,6 @@ typedef void (^boolSelectEventBlock)(BZGFormSelectCell *cell, NSDictionary *valu
 + (BZGFormSelectCell *)parentCellForButton:(UIButton *)button;
 
 //General constructor
-- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSNumber *)selected;
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSString *)selected;
 
 @end

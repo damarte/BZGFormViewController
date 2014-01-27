@@ -36,7 +36,7 @@
     return self;
 }
 
-- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSNumber *)selected
+- (id)initWithName:(NSString *)aName withPlaceholder:(NSString *) aPlaceHolder isRequired:(BOOL)required withOptions:(NSArray *)options andSelected:(NSString *)selected
 {
     self = [self init];
     if (self) {
@@ -44,18 +44,27 @@
         self.placeholder = aPlaceHolder;
         [self.button setTitle:self.placeholder forState:UIControlStateNormal];
         self.required = required;
-        if(selected && [selected integerValue] < options.count){
-            self.optionSelected = [self.options objectAtIndex:[selected integerValue]];
-        }
         
         if(required){
             self.options = options;
         }
         else{
             self.validationState = BZGValidationStateValid;
-            NSMutableArray *values = [NSMutableArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:NSLocalizedString(@"Ninguno", nil), @"name", @0, @"id", nil]];
+            NSMutableArray *values = [NSMutableArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:NSLocalizedString(@"Ninguno", nil), @"name", @"0", @"id", nil]];
             [values addObjectsFromArray:options];
             self.options = values;
+        }
+        
+        if(selected){
+            NSInteger i = 0;
+            for (NSDictionary *value in self.options) {
+                if([[value objectForKey:@"id"] isEqualToString:selected]){
+                    self.optionSelected = [self.options objectAtIndex:i];
+                }
+                i++;
+            }
+            
+            [self.button setTitle:[self.optionSelected objectForKey:@"name"] forState:UIControlStateNormal];
         }
         
         [self configureBindings];
@@ -102,7 +111,11 @@
 - (void) openOptions:(id) sender
 {
     if (_optionPicker == nil) {
-        _optionPicker = [[BZGFormOptionsViewController alloc] initWithOptions:self.options];
+        NSString *selected = nil;
+        if(self.optionSelected){
+            selected = [self.optionSelected objectForKey:@"id"];
+        }
+        _optionPicker = [[BZGFormOptionsViewController alloc] initWithOptions:self.options andSelected:selected];
         _optionPicker.delegate = self;
     }
     

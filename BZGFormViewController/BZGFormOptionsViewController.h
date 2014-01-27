@@ -19,6 +19,6 @@
 @property (strong, nonatomic) NSDictionary *selected;
 @property (nonatomic, strong) id<OptionPickerDelegate> delegate;
 
-- (id)initWithOptions:(NSArray *)options;
+- (id)initWithOptions:(NSArray *)options andSelected:(NSString *)selected;
 
 @end

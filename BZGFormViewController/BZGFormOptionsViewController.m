@@ -14,12 +14,21 @@
 
 @implementation BZGFormOptionsViewController
 
-- (id)initWithOptions:(NSArray *)options
+- (id)initWithOptions:(NSArray *)options andSelected:(NSString *)selected
 {
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
         self.options = options;
         self.selected = nil;
+        if(selected){
+            NSInteger i = 0;
+            for (NSDictionary *value in self.options) {
+                if([[value objectForKey:@"id"] isEqualToString:selected]){
+                    self.selected = [self.options objectAtIndex:i];
+                }
+                i++;
+            }
+        }
     }
     
     //Make row selections persist.
@@ -73,7 +82,7 @@
 {
     NSDictionary *selected = [self.options objectAtIndex:indexPath.row];
     
-    if([[selected objectForKey:@"id"] integerValue] == 0){
+    if([[selected objectForKey:@"id"] isEqualToString:@"0"]){
         selected = nil;
     }
     
