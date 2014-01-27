@@ -63,6 +63,7 @@ typedef BOOL (^boolEditingEventBlock)(BZGFormFieldCell *cell, NSString *text);
 - (void)configureInfoCell;
 - (void)configureLabel;
 - (void)configureBindings;
+- (void)configureActivityIndicatorView;
 
 - (NSString *)value;
 - (void)redraw;
