@@ -8,7 +8,6 @@
 
 #import "BZGFormInfoCell.h"
 #import "BZGFormFieldCell.h"
-#import "BZGFormOptionsViewController.h"
 
 @interface BZGFormTextCell : BZGFormFieldCell <UITextViewDelegate>
 
