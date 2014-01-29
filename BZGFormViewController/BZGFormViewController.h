@@ -6,6 +6,7 @@
 
 #import "BZGFormSelectCell.h"
 #import "BZGFormTextCell.h"
+#import "BZGFormLabelCell.h"
 
 @class BZGFormFieldCell, BZGFormSelectCell, BZGFormInfoCell, BZGFormTextCell;
 

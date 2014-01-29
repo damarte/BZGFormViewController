@@ -68,6 +68,9 @@
         }
         
         [self configureBindings];
+        
+        self.textField.enabled = NO;
+        self.textField.hidden = YES;
     }
     return self;
 }
@@ -87,24 +90,53 @@
 
 - (void)configureButton
 {
-    CGFloat textFieldX = self.bounds.size.width * 0.35;
-    CGFloat textFieldY = 0;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        textFieldY = 12;
-    }
-    self.button.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    CGRect buttonFrame = CGRectMake(textFieldX,
-                                       textFieldY,
-                                       self.bounds.size.width - textFieldX,
-                                       self.bounds.size.height);
-    self.button = [[UIButton alloc] initWithFrame:buttonFrame];
+    self.button = [[UIButton alloc] init];
     self.button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    self.button.titleEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
     self.button.tintColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
     [self.button setTitleColor:BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR forState:UIControlStateNormal];
     self.button.titleLabel.textColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
     self.button.titleLabel.font = BZG_FORMFIELD_TEXTFIELD_FONT;
+    self.button.layer.cornerRadius = 8;
+    self.button.layer.borderWidth = 1;
+    self.button.layer.borderColor = [UIColor lightGrayColor].CGColor;
     self.button.backgroundColor = [UIColor clearColor];
     [self.button addTarget:self action:@selector(openOptions:) forControlEvents:UIControlEventTouchUpInside];
+    
+    static UIImage *defaultImage = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(19, 10), NO, 0.0f);
+        
+        //// Color Declarations
+        UIColor* color = [UIColor colorWithRed: 0.5 green: 0.5 blue: 0.5 alpha: 1];
+        
+        //// Bezier Drawing
+        UIBezierPath* bezierPath = [UIBezierPath bezierPath];
+        [bezierPath moveToPoint: CGPointMake(1.5, 0.5)];
+        [bezierPath addCurveToPoint: CGPointMake(9.82, 8.51) controlPoint1: CGPointMake(10.46, 9.12) controlPoint2: CGPointMake(9.82, 8.51)];
+        [bezierPath addLineToPoint: CGPointMake(17.5, 0.5)];
+        [bezierPath addLineToPoint: CGPointMake(14.94, 0.5)];
+        [bezierPath addLineToPoint: CGPointMake(9.82, 6.04)];
+        [bezierPath addLineToPoint: CGPointMake(4.06, 0.5)];
+        [bezierPath addLineToPoint: CGPointMake(1.5, 0.5)];
+        [bezierPath closePath];
+        bezierPath.lineJoinStyle = kCGLineJoinRound;
+        
+        [color setFill];
+        [bezierPath fill];
+        [color setStroke];
+        bezierPath.lineWidth = 1;
+        [bezierPath stroke];
+        
+        // get an image of the graphics context
+        defaultImage = UIGraphicsGetImageFromCurrentImageContext();
+        
+        // end the context
+        UIGraphicsEndImageContext();
+	});
+    [self.button setImage:defaultImage forState:UIControlStateNormal];
+
     [self addSubview:self.button];
 }
 
@@ -171,16 +203,19 @@
 {
     //Button
     CGFloat buttonX = self.bounds.size.width * 0.35;
-    CGFloat buttonY = 0;
+    CGFloat buttonY = 4;
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
         buttonY = 12;
     }
     self.button.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     CGRect buttonFrame = CGRectMake(buttonX,
                                     buttonY,
-                                    self.bounds.size.width - buttonX,
-                                    self.bounds.size.height);
+                                    self.bounds.size.width - buttonX - 10 - self.activityIndicatorView.frame.size.width,
+                                    self.bounds.size.height-8);
     self.button.frame = buttonFrame;
+    
+    self.button.imageEdgeInsets = UIEdgeInsetsMake(4, buttonFrame.size.width - 29, 0, 0);
+    
     
     //Label
     CGFloat labelX = 10;

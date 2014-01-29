@@ -43,6 +43,9 @@
         
         [self configureBindings];
         
+        self.textField.enabled = NO;
+        self.textField.hidden = YES;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(textFieldTextDidEndEditing:)
                                                      name:UITextFieldTextDidEndEditingNotification
@@ -64,25 +67,16 @@
 - (void)configureTextView
 {
     //Cell
-    CGRect cellFrame = CGRectMake(0,
-                                  0,
-                                  self.bounds.size.width,
-                                  88);
+    CGRect cellFrame = CGRectMake(0, 0, self.bounds.size.width, 108);
     self.frame = cellFrame;
     
-    CGFloat textFieldX = 10;
-    CGFloat textFieldY = 25;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        textFieldX = 15;
-        textFieldY = 27;
-    }
-    CGRect textFieldFrame = CGRectMake(textFieldX,
-                                       textFieldY,
-                                       self.bounds.size.width - textFieldX - self.activityIndicatorView.frame.size.width,
-                                       self.bounds.size.height-textFieldY);
-    self.textView = [[UITextView alloc] initWithFrame:textFieldFrame];
+    self.textView = [[UITextView alloc] init];
     self.textView.autocorrectionType = UITextAutocorrectionTypeNo;
     self.textView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.textView.layer.borderWidth = 1;
+    self.textView.layer.borderColor =  [[UIColor lightGrayColor] CGColor];
+    self.textView.layer.cornerRadius = 8;
+    self.textView.layer.masksToBounds = YES;
     self.textView.textColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
     self.textView.font = BZG_FORMFIELD_TEXTFIELD_FONT;
     self.textView.backgroundColor = [UIColor clearColor];
@@ -91,15 +85,7 @@
 
 - (void)configureLabel
 {
-    CGFloat labelX = 10;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        labelX = 15;
-    }
-    CGRect labelFrame = CGRectMake(labelX,
-                                   0,
-                                   self.bounds.size.width-2*labelX-self.activityIndicatorView.frame.size.width,
-                                   20);
-    self.label = [[UILabel alloc] initWithFrame:labelFrame];
+    self.label = [[UILabel alloc] init];
     self.label.font = BZG_FORMFIELD_LABEL_FONT;
     self.label.textColor = BZG_FORMFIELD_LABEL_COLOR;
     self.label.backgroundColor = [UIColor clearColor];
@@ -178,7 +164,7 @@
     CGRect textFieldFrame = CGRectMake(textFieldX,
                                        textFieldY,
                                        self.bounds.size.width - 2*textFieldX - self.activityIndicatorView.frame.size.width,
-                                       self.bounds.size.height-textFieldY);
+                                       self.bounds.size.height - textFieldY);
     self.textView.frame = textFieldFrame;
     
     //Label

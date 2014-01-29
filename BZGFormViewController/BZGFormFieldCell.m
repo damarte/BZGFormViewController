@@ -77,19 +77,11 @@
 
 - (void)configureTextField
 {
-    CGFloat textFieldX = self.bounds.size.width * 0.35;
-    CGFloat textFieldY = 0;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        textFieldY = 12;
-    }
+    self.textField = [[UITextField alloc] init];
     self.textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-    CGRect textFieldFrame = CGRectMake(textFieldX,
-                                       textFieldY,
-                                       self.bounds.size.width - textFieldX - self.activityIndicatorView.frame.size.width,
-                                       self.bounds.size.height);
-    self.textField = [[UITextField alloc] initWithFrame:textFieldFrame];
     self.textField.autocorrectionType = UITextAutocorrectionTypeNo;
     self.textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    self.textField.borderStyle = UITextBorderStyleRoundedRect;
     self.textField.textColor = BZG_FORMFIELD_TEXTFIELD_NORMAL_COLOR;
     self.textField.font = BZG_FORMFIELD_TEXTFIELD_FONT;
     self.textField.backgroundColor = [UIColor clearColor];
@@ -98,15 +90,7 @@
 
 - (void)configureLabel
 {
-    CGFloat labelX = 10;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        labelX = 15;
-    }
-    CGRect labelFrame = CGRectMake(labelX,
-                                   0,
-                                   self.textField.frame.origin.x - labelX - 5,
-                                   self.bounds.size.height);
-    self.label = [[UILabel alloc] initWithFrame:labelFrame];
+    self.label = [[UILabel alloc] init];
     self.label.font = BZG_FORMFIELD_LABEL_FONT;
     self.label.textColor = BZG_FORMFIELD_LABEL_COLOR;
     self.label.backgroundColor = [UIColor clearColor];
@@ -193,15 +177,15 @@
 {
     //TextField
     CGFloat textFieldX = self.bounds.size.width * 0.35;
-    CGFloat textFieldY = 0;
+    CGFloat textFieldY = 4;
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
         textFieldY = 12;
     }
     self.textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     CGRect textFieldFrame = CGRectMake(textFieldX,
                                        textFieldY,
-                                       self.bounds.size.width - textFieldX - self.activityIndicatorView.frame.size.width,
-                                       self.bounds.size.height);
+                                       self.bounds.size.width - textFieldX - 10 - self.activityIndicatorView.frame.size.width,
+                                       self.bounds.size.height-8);
     self.textField.frame = textFieldFrame;
     
     //Label
