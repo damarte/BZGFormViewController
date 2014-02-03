@@ -32,6 +32,7 @@
         self.labelValue.text = aValue;
         self.textField.enabled = NO;
         self.textField.hidden = YES;
+        self.validationState = BZGValidationStateValid;
     }
     return self;
 }

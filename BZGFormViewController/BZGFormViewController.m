@@ -207,13 +207,12 @@
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     if(indexPath.section == self.formFieldCells.count && indexPath.row == 0){
         BOOL valid = YES;
-        if(indexPath.section == self.formFieldCells.count){
-            for(NSArray *section in self.formFieldCells) {
-                for (UITableViewCell *cell in section) {
-                    if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
-                        if (((BZGFormFieldCell *)cell).validationState != BZGValidationStateValid) {
-                            valid = NO;
-                        }
+        
+        for(NSArray *section in self.formFieldCells) {
+            for (UITableViewCell *cell in section) {
+                if ([cell isKindOfClass:[BZGFormFieldCell class]]) {
+                    if (((BZGFormFieldCell *)cell).validationState != BZGValidationStateValid) {
+                        valid = NO;
                     }
                 }
             }
