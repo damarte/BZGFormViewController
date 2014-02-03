@@ -60,6 +60,8 @@
             for (NSDictionary *value in self.options) {
                 if([[value objectForKey:@"id"] isEqualToString:selected]){
                     self.optionSelected = [self.options objectAtIndex:i];
+                    
+                    self.validationState = BZGValidationStateValid;
                 }
                 i++;
             }
