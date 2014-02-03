@@ -147,7 +147,7 @@
 
 - (void)submit
 {
-    NSLog(@"Enviar");
+
 }
 
 #pragma mark - TableView DataSource
