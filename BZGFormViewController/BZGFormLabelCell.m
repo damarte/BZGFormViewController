@@ -82,10 +82,7 @@
     self.labelValue.frame = textFieldFrame;
     
     //Label
-    CGFloat labelX = 10;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        labelX = 15;
-    }
+    CGFloat labelX = 15;
     CGRect labelFrame = CGRectMake(labelX,
                                    0,
                                    self.labelValue.frame.origin.x - labelX - 5,

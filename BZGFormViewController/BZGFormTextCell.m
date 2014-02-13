@@ -154,12 +154,8 @@
 - (void)redraw
 {
     //TextView
-    CGFloat textFieldX = 10;
-    CGFloat textFieldY = 25;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        textFieldX = 15;
-        textFieldY = 27;
-    }
+    CGFloat textFieldX = 15;
+    CGFloat textFieldY = 27;
 
     CGRect textFieldFrame = CGRectMake(textFieldX,
                                        textFieldY,
@@ -168,10 +164,7 @@
     self.textView.frame = textFieldFrame;
     
     //Label
-    CGFloat labelX = 10;
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
-        labelX = 15;
-    }
+    CGFloat labelX = 15;
     CGRect labelFrame = CGRectMake(labelX,
                                    0,
                                    self.bounds.size.width-2*labelX-self.activityIndicatorView.frame.size.width,
